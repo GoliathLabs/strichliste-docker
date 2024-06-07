@@ -44,7 +44,7 @@ RUN adduser -u 82 -D -S -G www-data www-data
 RUN chown -R www-data:www-data /source
 RUN chown -R www-data:www-data /var/lib/nginx
 RUN chown -R www-data:www-data /var/log/nginx
-RUN chown -R www-data:www-data /var/log/php81
+RUN chown -R www-data:www-data /var/log/php82
 
 USER www-data
 
