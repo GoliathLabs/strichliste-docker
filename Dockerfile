@@ -17,19 +17,19 @@ FROM alpine:3.20.0
 RUN apk --no-cache add ca-certificates \
   && apk --no-cache add \
     curl \
-    php81 \
-    php81-ctype \
-    php81-tokenizer \
-    php81-iconv \
-    php81-mbstring \
-    php81-xml \
-    php81-json \
-    php81-dom \
-    php81-pdo_mysql \
-    php81-fpm \
-    php81-session \
-    php81-sqlite3 \
-    php81-pdo_sqlite \
+    php82 \
+    php82-ctype \
+    php82-tokenizer \
+    php82-iconv \
+    php82-mbstring \
+    php82-xml \
+    php82-json \
+    php82-dom \
+    php82-pdo_mysql \
+    php82-fpm \
+    php82-session \
+    php82-sqlite3 \
+    php82-pdo_sqlite \
     nginx \
     bash \
     mysql-client \
