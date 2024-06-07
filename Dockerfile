@@ -48,8 +48,8 @@ RUN chown -R www-data:www-data /var/log/php82
 
 USER www-data
 
-COPY ./config/php-fpm.conf /etc/php81/php-fpm.conf
-COPY ./config/www.conf /etc/php81/php-fpm.d/www.conf
+COPY ./config/php-fpm.conf /etc/php82/php-fpm.conf
+COPY ./config/www.conf /etc/php82/php-fpm.d/www.conf
 COPY ./config/nginx.conf /etc/nginx/nginx.conf
 COPY ./config/default.conf /etc/nginx/conf.d/default.conf
 
@@ -59,4 +59,4 @@ WORKDIR /source/public
 EXPOSE 8080
 
 ENTRYPOINT ["/source/entrypoint.sh"]
-CMD nginx && php-fpm81
+CMD nginx && php-fpm82
