@@ -1,4 +1,4 @@
-FROM alpine:3.20.3 as release
+FROM alpine:3.21.2 as release
 
 RUN apk --no-cache add ca-certificates \
   && apk --no-cache add \
@@ -12,7 +12,7 @@ RUN tar -xf strichliste.tar.gz
 RUN rm -r strichliste.tar.gz
 
 
-FROM alpine:3.20.3
+FROM alpine:3.21.2
 
 RUN apk --no-cache add ca-certificates \
   && apk --no-cache add \
