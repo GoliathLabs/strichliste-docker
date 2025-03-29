@@ -1,27 +1,22 @@
-# Stage 1: Build stage
-FROM alpine:3.21.3 AS builder
+FROM alpine:3.21.3 as release
 
-RUN apk add --no-cache \
-    ca-certificates \
+RUN apk --no-cache add ca-certificates \
+  && apk --no-cache add \
     curl \
     tar
 
+RUN mkdir /source
 WORKDIR /source
-RUN curl -fsSL -o strichliste.tar.gz \
-    https://github.com/strichliste/strichliste/releases/download/v1.8.2/strichliste-v1.8.2.tar.gz \
-    && tar -xzf strichliste.tar.gz \
-    && rm strichliste.tar.gz
+RUN curl -Lo strichliste.tar.gz https://github.com/strichliste/strichliste/releases/download/v1.8.2/strichliste-v1.8.2.tar.gz
+RUN tar -xf strichliste.tar.gz
+RUN rm -r strichliste.tar.gz
 
-# Stage 2: Runtime stage
+
 FROM alpine:3.21.3
 
-# Install runtime dependencies
-RUN apk add --no-cache \
-    ca-certificates \
-    nginx \
-    bash \
-    mysql-client \
-    yarn \
+RUN apk --no-cache add ca-certificates \
+  && apk --no-cache add \
+    curl \
     php82 \
     php82-ctype \
     php82-tokenizer \
@@ -35,37 +30,33 @@ RUN apk add --no-cache \
     php82-session \
     php82-sqlite3 \
     php82-pdo_sqlite \
-    && rm -rf /var/cache/apk/*
+    nginx \
+    bash \
+    mysql-client \
+    yarn
 
-# Create www-data user and set up permissions
-RUN adduser -u 82 -D -S -G www-data www-data \
-    && mkdir -p /var/lib/nginx /var/log/nginx /var/log/php82 \
-    && chown -R www-data:www-data /var/lib/nginx /var/log/nginx /var/log/php82
+COPY --from=release /source source
 
-# Copy application files from builder
-COPY --from=builder --chown=www-data:www-data /source /source
-
-# Copy configuration files
-COPY --chown=www-data:www-data ./config/php-fpm.conf /etc/php82/php-fpm.conf
-COPY --chown=www-data:www-data ./config/www.conf /etc/php82/php-fpm.d/www.conf
-COPY --chown=www-data:www-data ./config/nginx.conf /etc/nginx/nginx.conf
-COPY --chown=www-data:www-data ./config/default.conf /etc/nginx/conf.d/default.conf
-
-# Copy and prepare entrypoint
-COPY --chown=www-data:www-data entrypoint.sh /source/entrypoint.sh
+COPY entrypoint.sh /source/entrypoint.sh
 RUN chmod +x /source/entrypoint.sh
 
-# Set up volumes and ports
+RUN adduser -u 82 -D -S -G www-data www-data
+RUN chown -R www-data:www-data /source
+RUN chown -R www-data:www-data /var/lib/nginx
+RUN chown -R www-data:www-data /var/log/nginx
+RUN chown -R www-data:www-data /var/log/php82
+
+USER www-data
+
+COPY ./config/php-fpm.conf /etc/php82/php-fpm.conf
+COPY ./config/www.conf /etc/php82/php-fpm.d/www.conf
+COPY ./config/nginx.conf /etc/nginx/nginx.conf
+COPY ./config/default.conf /etc/nginx/conf.d/default.conf
+
 VOLUME /source/var
+
 WORKDIR /source/public
 EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s \
-    CMD curl -f http://localhost:8080/ || exit 1
-
-# Run as non-root user
-USER www-data
-
 ENTRYPOINT ["/source/entrypoint.sh"]
-CMD ["sh", "-c", "nginx && php-fpm82"]
+CMD nginx && php-fpm82
