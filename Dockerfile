@@ -12,7 +12,7 @@ RUN tar -xf strichliste.tar.gz
 RUN rm -r strichliste.tar.gz
 
 
-FROM php:8.2-fpm-alpine
+FROM php:8.5-fpm-alpine
 
 RUN apk --no-cache add \
     ca-certificates \
